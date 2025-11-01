@@ -1,0 +1,30 @@
+name: chatops.trigger
+on: { issue_comment: { types: [created] } }
+permissions: { contents: write }
+jobs:
+  run:
+    if: github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Parse /trigger
+        id: parse
+        run: |
+          body="${{ github.event.comment.body }}"
+          _cmd="$(printf "%s" "$body" | awk '{print $1}')"
+          name="$(printf "%s" "$body" | awk '{print $2}')"
+          if [[ "$_cmd" != "/trigger" || -z "$name" ]]; then exit 1; fi
+          echo "name=$name" >> $GITHUB_OUTPUT
+      - name: Create timestamped trigger
+        run: |
+          name="${{ steps.parse.outputs.name }}"
+          ts="$(date -u +%Y%m%dT%H%M%SZ)"
+          path=".trigger/ua_core_dispatch/${name}_${ts}.txt"
+          mkdir -p "$(dirname "$path")"
+          echo "trigger $ts" > "$path"
+          git config user.name "chatops-bot"
+          git config user.email "bot@parlios.ai"
+          git add "$path"
+          git commit -m "chatops(trigger): $path"
+          git push origin HEAD:main

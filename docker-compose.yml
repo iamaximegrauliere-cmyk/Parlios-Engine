@@ -1,1 +1,9 @@
-dmVyc2lvbjogIjMuOSIKc2VydmljZXM6CiAgb3JjaGVzdHJhdGV1cjoKICAgIGJ1aWxkOiAuCiAgICBwb3J0czoKICAgICAgLSAiODA4MDo4MDgwIgogICAgdm9sdW1lczoKICAgICAgLSAuL2RhdGE6L2FwcC9kYXRhCiAgICBlbnZpcm9ubWVudDoKICAgICAgLSBBUFBfRU5WPXByb2R1Y3Rpb24KICAgIGNvbW1hbmQ6IHV2aWNvcm4gc3JjLmFwcC5tYWluOmFwcCAtLWhvc3QgMC4wLjAuMCAtLXBvcnQgODA4MAo=
+version: '3.9'
+services:
+  engine:
+    build: .
+    ports: ['8080:8080']
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    command: ['uvicorn', 'engine.api.main:app', '--host', '0.0.0.0', '--port', '8080']
