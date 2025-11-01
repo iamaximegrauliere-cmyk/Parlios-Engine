@@ -1,0 +1,53 @@
+name: x-ua-x Hardening
+on:
+  push:
+    paths: ['.github/workflows/**']
+  schedule:
+    - cron: '*/30 * * * *'
+permissions: { contents: read }
+env:
+  ALLOW_ACTORS: 'x-ua-x github-actions[bot]'
+  HB_DIR: '.ua/health'
+  HB_FILE: 'heartbeat.json'
+jobs:
+  guard_workflow_permissions:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure each workflow declares permissions:
+        run: |
+          miss=$(grep -L '^[[:space:]]*permissions:' .github/workflows/*.{yml,yaml} || true)
+          [ -z "$miss" ] || { echo 'Missing permissions in:'; echo "$miss"; exit 1; }
+  heartbeat_selftest:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    permissions: { contents: write, pull-requests: write }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Prepare heartbeat
+        id: prep
+        run: |
+          ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          mkdir -p "${HB_DIR}"
+          printf '{"ts":"%s","ok":true}
+' "$ts" > "${HB_DIR}/${HB_FILE}"
+          echo "ts=$ts" >> $GITHUB_OUTPUT
+          echo "branch=ua-selftest-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+      - name: Commit sandbox
+        run: |
+          br="${{ steps.prep.outputs.branch }}"
+          git checkout -b "$br"
+          git add -A
+          git -c user.name="x-ua-x" -c user.email="x-ua-x@users.noreply.github.com" commit -m "ua(selftest): ${{ steps.prep.outputs.ts }}" || exit 0
+          git push -u origin "$br"
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.X_UA_X_TOKEN }}
+          title: 'UA Self-Test Heartbeat'
+          body: 'PR sandbox — preuve d'écriture contrôlée.'
+          branch: ${{ steps.prep.outputs.branch }}
+          base: main
+          delete-branch: true

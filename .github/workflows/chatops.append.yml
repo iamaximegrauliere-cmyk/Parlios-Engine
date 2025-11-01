@@ -1,0 +1,39 @@
+name: chatops.append
+on:
+  issue_comment: { types: [created] }
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  run:
+    if: github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Parse /append
+        id: parse
+        shell: bash
+        run: |
+          body="${{ github.event.comment.body }}"
+          _cmd="$(printf "%s" "$body" | awk '{print $1}')"
+          path="$(printf "%s" "$body" | awk '{print $2}')"
+          b64="$(printf "%s" "$body" | awk '{print $3}')"
+          if [[ "$_cmd" != "/append" || -z "$path" || -z "$b64" ]]; then exit 1; fi
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "path=$path" >> $GITHUB_OUTPUT
+          echo "b64=$b64" >> $GITHUB_OUTPUT
+      - name: Apply append
+        if: steps.parse.outputs.skip == 'false'
+        run: |
+          path="${{ steps.parse.outputs.path }}"
+          printf "%s" "${{ steps.parse.outputs.b64 }}" | base64 -d >> "$path"
+      - name: Create PR
+        if: steps.parse.outputs.skip == 'false'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chatops-append/${{ github.run_id }}
+          commit-message: chatops(append): ${{ steps.parse.outputs.path }}
+          title: chatops(append): ${{ steps.parse.outputs.path }}
+          body: ChatOps append via issue comment.
+          base: main

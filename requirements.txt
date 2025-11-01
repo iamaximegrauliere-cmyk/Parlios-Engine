@@ -1,1 +1,5 @@
-ZmFzdGFwaQp1dmljb3JuCnB5ZGFudGljCm51bXB5CmZhaXNzLWNwdQpzZW50ZW5jZS10cmFuc2Zvcm1lcnMKcHl0aG9uLWRvdGVudgoKc2Npa2l0LWxlYXJuCnNjaXB5Cg==
+fastapi
+uvicorn
+pydantic
+pytest
+ruff

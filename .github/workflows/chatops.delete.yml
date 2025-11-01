@@ -1,0 +1,30 @@
+name: chatops.delete
+on: { issue_comment: { types: [created] } }
+permissions: { contents: write, pull-requests: write }
+jobs:
+  run:
+    if: github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Parse /delete
+        id: parse
+        run: |
+          body="${{ github.event.comment.body }}"
+          _cmd="$(printf "%s" "$body" | awk '{print $1}')"
+          path="$(printf "%s" "$body" | awk '{print $2}')"
+          if [[ "$_cmd" != "/delete" || -z "$path" ]]; then exit 1; fi
+          echo "path=$path" >> $GITHUB_OUTPUT
+      - name: Apply delete
+        run: |
+          path="${{ steps.parse.outputs.path }}"
+          [ -f "$path" ] && git rm -f "$path" || echo "not found"
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chatops-delete/${{ github.run_id }}
+          commit-message: chatops(delete): ${{ steps.parse.outputs.path }}
+          title: chatops(delete): ${{ steps.parse.outputs.path }}
+          body: ChatOps delete via issue comment.
+          base: main
