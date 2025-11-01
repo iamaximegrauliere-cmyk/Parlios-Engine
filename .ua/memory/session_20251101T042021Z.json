@@ -1,0 +1,26 @@
+{
+  "ts": "20251101T042021Z",
+  "goal": "Secure call",
+  "prefs": null,
+  "plan": {
+    "steps": [
+      {
+        "name": "Analyser la demande et les clarifications",
+        "details": {}
+      },
+      {
+        "name": "Structurer un brief (objectifs, livrables, critères de succès)",
+        "details": {}
+      },
+      {
+        "name": "Produire le livrable initial",
+        "details": {}
+      },
+      {
+        "name": "Auto-vérification/checklist et amélioration",
+        "details": {}
+      }
+    ]
+  },
+  "output": "Objectif: Secure call\n\nPlan:\n- Analyser la demande et les clarifications\n- Structurer un brief (objectifs, livrables, critères de succès)\n- Produire le livrable initial\n- Auto-vérification/checklist et amélioration"
+}
