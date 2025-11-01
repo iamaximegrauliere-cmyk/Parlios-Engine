@@ -16,7 +16,7 @@ class Memory:
             json.dump({
                 "ts": ts,
                 "goal": req.goal,
-                "prefs": (req.prefs.dict() if req.prefs else None),
-                "plan": (plan.dict() if plan else None),
+                "prefs": (req.prefs.model_dump() if req.prefs else None),
+                "plan": (plan.model_dump() if plan else None),
                 "output": output
             }, f, ensure_ascii=False, indent=2)
