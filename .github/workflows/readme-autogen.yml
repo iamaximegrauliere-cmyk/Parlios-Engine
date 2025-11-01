@@ -7,7 +7,6 @@ on:
       - README.md
   workflow_dispatch:
 
-# Nécessaire pour pouvoir commit/push README.md depuis l'action
 permissions:
   contents: write
 
