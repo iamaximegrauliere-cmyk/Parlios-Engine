@@ -1,0 +1,63 @@
+name: Readme Autogen
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - "README.md"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate README
+        run: |
+          python - << 'PY'
+import os, pathlib, textwrap
+ROOT = pathlib.Path(".").resolve()
+# Reprend le script rapide (auto-contenu) :
+IGNORE_DIRS = {".git","__pycache__","node_modules",".venv",".idea",".vscode","dist","build"}
+def tree(root, prefix=""):
+    lines=[]
+    entries=sorted([e for e in root.iterdir() if e.name not in IGNORE_DIRS], key=lambda p:(p.is_file(), p.name.lower()))
+    for i,e in enumerate(entries):
+        conn = "└── " if i==len(entries)-1 else "├── "
+        lines.append(prefix + conn + e.name + ("/" if e.is_dir() else ""))
+        if e.is_dir():
+            ext = "    " if i==len(entries)-1 else "│   "
+            lines.extend(tree(e, prefix+ext))
+    return lines
+tree_block = "```\n" + "\n".join(tree(ROOT)) + "\n```"
+readme=f"""# Parlios-Engine
+
+Orchestrateur d’IA personnalisée (v4). README auto-généré par CI.
+
+## 🗂 Structure
+{tree_block}
+
+## 🚀 Démarrage rapide
+Voir sections Installation / Lancement dans le code source.
+"""
+(open("README.md","w",encoding="utf-8")).write(readme)
+print("README.md généré.")
+PY
+
+      - name: Commit README if changed
+        run: |
+          if [[ -n "$(git status --porcelain README.md)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "docs: auto-update README"
+            git push
+          else
+            echo "Pas de changement."
+          fi
