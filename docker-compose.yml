@@ -1,9 +1,9 @@
-version: '3.9'
-services:
-  engine:
-    build: .
-    ports: ['8080:8080']
-    environment:
-      - PYTHONDONTWRITEBYTECODE=1
-      - PYTHONUNBUFFERED=1
-    command: ['uvicorn', 'engine.api.main:app', '--host', '0.0.0.0', '--port', '8080']
+ services:
+   engine:
+     build: .
+     ports: ['8080:8080']
+     environment:
+       - PYTHONDONTWRITEBYTECODE=1
+       - PYTHONUNBUFFERED=1
++      # - PARLIOS_API_KEY=change-me
+     command: ['uvicorn', 'engine.api.main:app', '--host', '0.0.0.0', '--port', '8080']
