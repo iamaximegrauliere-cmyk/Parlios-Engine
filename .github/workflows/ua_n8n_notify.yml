@@ -1,0 +1,5 @@
+name: ua_n8n_notify (disabled)
+# Désactivé tant que n8n n'est pas utilisé
+on: {}
+permissions: { contents: read }
+jobs: {}
