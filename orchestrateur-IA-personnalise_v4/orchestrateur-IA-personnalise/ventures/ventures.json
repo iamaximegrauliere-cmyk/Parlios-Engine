@@ -1,0 +1,17 @@
+{
+  "ventures": [
+    {
+      "id": "github-orchestrator",
+      "title": "Orchestrateur GitHub",
+      "goal": "Automatiser bonnes pratiques et workflows Actions",
+      "status": "idea",
+      "agents": [
+        "clarifier",
+        "research",
+        "producer",
+        "verifier",
+        "meta-reflect"
+      ]
+    }
+  ]
+}
